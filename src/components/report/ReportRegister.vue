@@ -4,16 +4,24 @@
     <q-card-section class="sections">
       <q-select
         outlined
-        v-model="model"
-        :options="categories"
+        v-model="typeSelected"
+        :options="typesDomain"
+        option-label="label"
+        option-value="value"
         label="Categoría"
         class="input-box"
+        emit-value
       />
-      <q-input outlined v-model="issue" label="Asunto" class="input-box" />
+      <q-input
+        outlined
+        v-model="reportTitle"
+        label="Asunto"
+        class="input-box"
+      />
     </q-card-section>
     <q-card-section class="sections">
       <q-input
-        v-model="issueDetail"
+        v-model="reportDetail"
         outlined
         clearable
         type="textarea"
@@ -27,11 +35,8 @@
     </q-card-section>
     <q-card-section class="sections">
       <div class="map-container">
-        <MapView
-          @update-location="
-            (nuevaPosición) => (geoLocalización = nuevaPosición)
-          "
-        />
+        <p>Coordenadas del marker: {{ geoLocation }}</p>
+        <MapWithMarker @update-location="updateGeoLocation" />
       </div>
     </q-card-section>
     <q-card-section class="sections">
@@ -42,31 +47,25 @@
 
 <style>
 .frm-title {
-  margin: 0;
+  margin: 5px 0px;
 }
-.frm-publish {
-  /*justify-content: space-between;*/
-}
-
 .sections {
   display: flex;
   flex-wrap: wrap;
   padding: 5px;
 }
-
 .input-box {
   height: 52px;
   margin: 18px 15px 18px 0px;
   width: 300px;
 }
-
 .textarea-box {
   width: 95%;
 }
-
 .map-container {
-  width: 400px;
-  height: 200px;
+  width: 90%;
+  height: 400px;
+  padding: 0px;
 }
 
 @media (max-width: 600px) {
@@ -87,53 +86,48 @@
 </style>
 
 <script>
-import { ref, onMounted } from "vue";
-import L, { Draggable } from "leaflet";
-import MapView from "src/components/report/MapView.vue";
+import MapWithMarker from "src/components/report/MapWithMarker.vue";
 
 export default {
-  name: "ReportPublish",
+  name: "ReportRegister",
   components: {
-    MapView,
+    MapWithMarker,
   },
   data() {
     return {
-      geoLocalización: null,
-      model: null,
-      categories: ["Ambiental", "Delictivo"],
-      issue: null,
-      issueDetail: null,
+      geoLocation: null,
+      reportTitle: null,
+      reportDetail: null,
+      typeSelected: null,
+      typesDomain: [
+        { label: "Ambiental", value: "AMB" },
+        { label: "Delictivo", value: "DEL" },
+      ],
     };
   },
   methods: {
-    actualizarGeoLocalización(nuevaPosición) {
-      this.geoLocalización = nuevaPosición;
+    updateGeoLocation(newCoords) {
+      this.geoLocation = newCoords;
     },
-
     registerReport() {
-      let endpointPublishReport = "/api/Reportes";
+      let endpointPublishReport = "/api/Report/AddReport";
 
-      // Convertir geoLocalización a string
-      const ubicacionString = this.geoLocalización
-        ? `${this.geoLocalización.lat}, ${this.geoLocalización.lng}`
+      const geoLocationString = this.geoLocation
+        ? `${this.geoLocation.lat}, ${this.geoLocation.lng}`
         : null;
 
       let report = {
-        usuarioId: "1",
-        titulo: this.issue,
-        descripcion: this.issueDetail,
-        categoria: this.model,
-        ubicacion: ubicacionString,
-        fechaCreacion: new Date().toISOString(),
-        estado: "A",
+        userId: "1",
+        title: this.reportTitle,
+        detail: this.reportDetail,
+        type: this.typeSelected,
+        location: geoLocationString,
       };
-
-      console.log("Enviando reporte:", report);
 
       this.$api
         .post(endpointPublishReport, report, {
           headers: {
-            "Content-Type": "application/json", // Encabezado correcto
+            "Content-Type": "application/json",
           },
         })
         .then((response) => {
@@ -158,24 +152,6 @@ export default {
             timeout: 5000,
           });
         });
-    },
-  },
-  return: {
-    textareaFillCancelled: ref(false),
-    textareaShadowText: ref(null),
-    processTextareaFill(e) {
-      if (e.keyCode === 27) {
-        this.textareaFillCancelled = true;
-      } else if (
-        e.keyCode === 9 &&
-        !this.textareaFillCancelled &&
-        this.textareaShadowText.length > 0
-      ) {
-        e.preventDefault();
-        this.issueDetail += this.textareaShadowText;
-      } else if (this.textareaFillCancelled) {
-        this.textareaFillCancelled = false;
-      }
     },
   },
 };

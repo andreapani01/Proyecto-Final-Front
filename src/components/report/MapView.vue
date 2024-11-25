@@ -1,5 +1,5 @@
 <template>
-  <div id="map" style="height: 500px; width: 100%"></div>
+  <div id="map" style="height: 300px; width: 100%"></div>
   {{ currentPosition }}
 </template>
 
@@ -29,10 +29,8 @@ export default {
 
           this.currentPosition = { lat: latitude, lng: longitude };
 
-          // Emitir la posición inicial
           this.$emit("update-location", this.currentPosition);
 
-          // Actualizar la posición al arrastrar el marcador
           marker.on("dragend", (event) => {
             const newPosition = event.target.getLatLng();
             this.currentPosition = {

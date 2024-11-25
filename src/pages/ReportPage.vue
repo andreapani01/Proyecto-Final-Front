@@ -1,16 +1,16 @@
 <template>
   <div class="q-pa-md">
-    <ReportPublish />
+    <ReportRegister />
   </div>
 </template>
 
 <style></style>
 
 <script>
-import ReportPublish from "src/components/report/ReportPubish.vue";
+import ReportRegister from "src/components/report/ReportRegister.vue";
 
 export default {
   name: "ReportPage",
-  components: { ReportPublish },
+  components: { ReportRegister },
 };
 </script>
