@@ -9,6 +9,9 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 const { configure } = require("quasar/wrappers");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -42,6 +45,9 @@ module.exports = configure(function (/* ctx */) {
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node20",
+      },
+      env: {
+        VUE_APP_GOOGLE_MAPS_KEY: process.env.VUE_APP_GOOGLE_MAPS_KEY,
       },
 
       vueRouterMode: "hash", // available values: 'hash', 'history'
